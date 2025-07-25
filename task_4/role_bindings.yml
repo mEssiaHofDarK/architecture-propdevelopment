@@ -1,0 +1,41 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  name: developer
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: cube_user
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: admin-pods
+  namespace: default
+subjects:
+- kind: User
+  name: devops
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: cube_admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-secrets
+  namespace: default
+subjects:
+- kind: User
+  name: sesurity
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: cube_secret
+  apiGroup: rbac.authorization.k8s.io

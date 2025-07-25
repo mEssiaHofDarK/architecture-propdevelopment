@@ -1,46 +1,22 @@
 #!/bin/bash
-echo create user \"sesurity\"
-useradd sesurity && cd /home/sesurity
-openssl genrsa -out sesurity.key 2048
 
-openssl req -new -key sesurity.key \
--out sesurity.csr \
--subj "/CN=sesurity"
+# Создание пользователей
+create_user() {
+  local user=$1
+  local cert_dir=~/.kube/ssl
 
-openssl x509 -req -in sesurity.csr \
--CA /etc/kubernetes/pki/ca.crt \
--CAkey /etc/kubernetes/pki/ca.key \
--CAcreateserial \
--out sesurity.crt -days 500
+  # Создание директории для сертификатов
+  mkdir -p "$cert_dir"
 
-mkdir .certs && mv sesurity.crt sesurity.key .certs
+  # Генерация сертификата для пользователя
+  openssl genrsa -out "$cert_dir/$user.key" 2048
+  openssl req -new -key "$cert_dir/$user.key" -out "$cert_dir/$user.csr" -subj "/CN=$user/O=example"
+  openssl x509 -req -in "$cert_dir/$user.csr" -signkey "$cert_dir/$user.key" -out "$cert_dir/$user.crt" -days 365
 
-kubectl config set-credentials sesurity \
---client-certificate=/home/sesurity/.certs/sesurity.crt \
---client-key=/home/sesurity/.certs/sesurity.key
+  # Создание контекста для пользователя
+  kubectl config set-credentials "$user" --client-certificate="$cert_dir/$user.crt" --client-key="$cert_dir/$user.key"
+}
 
-kubectl config set-context sesurity-context \
---cluster=kubernetes --user=sesurity
-
-mkdir .kube && vi .kube/config
-
-chown -R sesurity: /home/sesurity/
-echo user \"sesurity\" created!
-
-userdel -r sesurity
-
-#echo;
-#echo \>\>\>init shard1-1;
-#docker compose exec -T shard1-1 mongosh --port 27018 <<EOF
-#rs.initiate(
-#    {
-#      _id : "rs0",
-#      members: [
-#        { _id : 0, host : "shard1-1:27018" },
-#        { _id : 1, host : "shard1-2:27019" },
-#        { _id : 2, host : "shard1-3:27020" }
-#      ]
-#    }
-#);
-#exit();
-#EOF
+create_user "sesurity"
+create_user "devops"
+create_user "developer"
