@@ -1,0 +1,66 @@
+@startuml
+title "PropDevelopment " Context Diagram
+!include <C4/C4_Container>
+
+
+Person(client, "Клиент", )
+Person(customer, "Собственник", )
+Person(manger, "Менеджер", )
+Person(buis_anal, "Бизнес аналитик", )
+Person(buh, "Бухгалтер", )
+Person(anal_bi, "Аналитик BI", )
+
+Container_Boundary(PropDevelopment, "PropDevelopment") {
+    Container(auth, "Сервис авторизации", "Keycloack", )
+
+    Container_Boundary(client_services, "Сервисы для клиентов") {
+        Container(client_vitrina, "Витрина для клиентов", "JS, React", )
+        Container(client_back, "Бекенд сервисы + БД", "Kotlin, SpringBoot, Postgres, MSSQL", )
+    }
+
+    Container_Boundary(cust_services, "Сервисы для собственников") {
+        Container(cust_vitrina, "Витрина для собственников", "JS, React", )
+        Container(cust_back, "Бекенд сервисы + БД", "Kotlin, SpringBoot, Postgres, MSSQL", )
+        Container(api_gw, "API Gateway", "nginx", )
+    }
+
+    Container_Boundary(inner_services, "Бухгалтерия, active directory и прочее") {
+        Container(acc_service, "Система бухучёта", "Keycloack", )
+        Container(active_directory, "Служба каталогов", "MS active directory", )
+    }
+
+    Container_Boundary(db , "Глубинное хранилище") {
+      Container(deep_db, "Хранилище данных", "Greenplum, S3", )
+    }
+}
+
+System_Ext(gos, "Государственные регистраицонные органы", )
+System_Ext(jkh, "Поставщик услуг ЖКХ", )
+System_Ext(pay, "Платёжная система", )
+System_Ext(smart, "Умный дом", )
+
+
+Rel(client, client_vitrina, )
+Rel(client_vitrina, client_back, )
+Rel(client_vitrina, auth, )
+Rel(client_back, deep_db, )
+
+Rel(customer, cust_vitrina, )
+Rel(cust_vitrina, cust_back, )
+Rel(cust_vitrina, auth, )
+Rel(cust_back, deep_db, )
+
+Rel(buh, acc_service, )
+Rel(acc_service, active_directory, )
+Rel(acc_service, auth, )
+
+Rel(anal_bi, deep_db, )
+Rel(manger, PropDevelopment, )
+Rel(buis_anal, PropDevelopment, )
+
+Rel(client_back, gos, )
+Rel(cust_back, jkh, )
+Rel(cust_back, pay, )
+Rel(smart, api_gw, )
+Rel(api_gw, cust_back, )
+@enduml
